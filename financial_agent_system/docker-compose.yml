@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  financial-agent:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8000
+      - DEBUG=False
+      - STOCK_MCP_HOST=host.docker.internal
+      - STOCK_MCP_PORT=9898
+    depends_on:
+      - stock-mcp
+    networks:
+      - financial-network
+
+  stock-mcp:
+    image: stock-mcp:latest
+    ports:
+      - "9898:9898"
+    networks:
+      - financial-network
+
+networks:
+  financial-network:
+    driver: bridge

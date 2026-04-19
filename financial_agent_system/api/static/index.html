@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>金融智能体系统</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 16px;
+            opacity: 0.8;
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        h2 {
+            font-size: 20px;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .result pre {
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        
+        .agent-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .agent-card {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .agent-card h3 {
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+        
+        .capabilities {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin-top: 20px;
+        }
+        
+        .visualization-section {
+            margin-top: 30px;
+        }
+        
+        .report-section {
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>金融智能体系统</h1>
+            <div class="subtitle">基于DeerFlow 2.0架构的金融智能服务平台</div>
+        </header>
+        
+        <div class="card">
+            <h2>执行任务</h2>
+            <form id="task-form">
+                <div class="form-group">
+                    <label for="task-type">任务类型</label>
+                    <select id="task-type" name="task_type">
+                        <option value="financial_analysis">金融分析</option>
+                        <option value="risk_management">风险管理</option>
+                        <option value="investment_advice">投资建议</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="analysis-type">分析类型</label>
+                    <select id="analysis-type" name="analysis_type">
+                        <option value="market_analysis">市场分析</option>
+                        <option value="technical_analysis">技术分析</option>
+                        <option value="financial_statement_analysis">财务报表分析</option>
+                        <option value="sector_analysis">行业分析</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="symbol">股票代码</label>
+                    <input type="text" id="symbol" name="symbol" placeholder="例如: AAPL">
+                </div>
+                
+                <button type="submit">执行任务</button>
+            </form>
+            
+            <div class="result" id="result">
+                <h3>结果</h3>
+                <pre id="result-content">请执行任务查看结果</pre>
+            </div>
+            
+            <div class="visualization-section">
+                <h3>数据可视化</h3>
+                <div class="chart-container">
+                    <canvas id="priceChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="report-section">
+                <h3>分析报告</h3>
+                <div id="report-content">请执行任务生成报告</div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>可用代理</h2>
+            <div class="agent-list" id="agent-list">
+                <!-- 代理列表将通过JavaScript动态加载 -->
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>可用技能</h2>
+            <div class="agent-list" id="skill-list">
+                <!-- 技能列表将通过JavaScript动态加载 -->
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 加载代理列表
+        async function loadAgents() {
+            const response = await fetch('/api/v1/agents');
+            const agents = await response.json();
+            const agentList = document.getElementById('agent-list');
+            agentList.innerHTML = '';
+            
+            agents.forEach(agent => {
+                const agentCard = document.createElement('div');
+                agentCard.className = 'agent-card';
+                agentCard.innerHTML = `
+                    <h3>${agent.name}</h3>
+                    <p>${agent.description}</p>
+                    <div class="capabilities">
+                        <strong>能力:</strong> ${agent.capabilities.join(', ')}
+                    </div>
+                `;
+                agentList.appendChild(agentCard);
+            });
+        }
+        
+        // 加载技能列表
+        async function loadSkills() {
+            const response = await fetch('/api/v1/skills');
+            const skills = await response.json();
+            const skillList = document.getElementById('skill-list');
+            skillList.innerHTML = '';
+            
+            skills.forEach(skill => {
+                const skillCard = document.createElement('div');
+                skillCard.className = 'agent-card';
+                skillCard.innerHTML = `
+                    <h3>${skill.name}</h3>
+                    <p>${skill.description}</p>
+                `;
+                skillList.appendChild(skillCard);
+            });
+        }
+        
+        // 执行任务
+        document.getElementById('task-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const taskData = {};
+            formData.forEach((value, key) => {
+                taskData[key] = value;
+            });
+            
+            try {
+                const response = await fetch('/api/v1/task', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(taskData)
+                });
+                
+                const result = await response.json();
+                document.getElementById('result-content').textContent = JSON.stringify(result, null, 2);
+                
+                // 生成可视化
+                generateVisualization(result);
+                
+                // 生成报告
+                generateReport(result);
+            } catch (error) {
+                document.getElementById('result-content').textContent = `错误: ${error.message}`;
+            }
+        });
+        
+        // 生成可视化
+        function generateVisualization(result) {
+            const ctx = document.getElementById('priceChart').getContext('2d');
+            
+            // 模拟数据
+            const labels = ['1月', '2月', '3月', '4月', '5月', '6月'];
+            const data = [100, 105, 110, 108, 115, 120];
+            
+            // 检查并销毁旧图表
+            if (window.priceChart && typeof window.priceChart.destroy === 'function') {
+                window.priceChart.destroy();
+            }
+            
+            // 创建新图表
+            window.priceChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '股票价格',
+                        data: data,
+                        borderColor: '#3498db',
+                        backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: '股票价格趋势'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 生成报告
+        function generateReport(result) {
+            const reportContent = document.getElementById('report-content');
+            
+            reportContent.innerHTML = `
+                <h4>分析报告</h4>
+                <p><strong>任务类型:</strong> ${result.result.task_type || '未知'}</p>
+                <p><strong>分析类型:</strong> ${result.result.analysis_type || '未知'}</p>
+                <p><strong>股票代码:</strong> ${result.result.symbol || '未知'}</p>
+                <p><strong>分析结果:</strong> ${result.result.analysis || '暂无分析结果'}</p>
+            `;
+        }
+        
+        // 页面加载时初始化
+        window.onload = function() {
+            loadAgents();
+            loadSkills();
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: financial-agent
+  namespace: default
+  labels:
+    app: financial-agent
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: financial-agent
+  template:
+    metadata:
+      labels:
+        app: financial-agent
+    spec:
+      containers:
+      - name: financial-agent
+        image: financial-agent-system:latest
+        ports:
+        - containerPort: 8000
+        env:
+        - name: HOST
+          value: "0.0.0.0"
+        - name: PORT
+          value: "8000"
+        - name: DEBUG
+          value: "False"
+        - name: STOCK_MCP_HOST
+          value: "stock-mcp"
+        - name: STOCK_MCP_PORT
+          value: "9898"
+        resources:
+          limits:
+            cpu: "1"
+            memory: "1Gi"
+          requests:
+            cpu: "500m"
+            memory: "512Mi"
