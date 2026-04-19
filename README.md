@@ -29,7 +29,7 @@
 如果你只是想先把服务跑起来，最短路径就是：
 
 ```bash
-git clone https://github.com/yourusername/stock-mcp.git
+git clone https://github.com/amuMeta/stock-mcp.git
 cd stock-mcp
 cp .env.example .env
 docker compose up -d --build
@@ -356,9 +356,7 @@ curl -X POST http://127.0.0.1:9898/mcp \
 - `DATABASE_URL`
 - `MCP_TOOL_TIMEOUT_SECONDS`, `PROVIDER_CALL_TIMEOUT_SECONDS`
 
-完整示例见：
-
-- [`/Users/huweihua/java/qiuzhao/stock-mcp/.env.example`](/Users/huweihua/java/qiuzhao/stock-mcp/.env.example)
+完整示例见 `.env.example`
 
 ### 测试
 
@@ -370,13 +368,25 @@ uv run pytest
 
 ```text
 stock-mcp/
-├── src/server/api/             # FastAPI HTTP 路由
-├── src/server/mcp/             # MCP server 与 tools
-├── src/server/domain/          # adapter / service / router
-├── src/server/infrastructure/  # Redis / Postgres / 外部连接
-├── src/server/core/            # 配置、依赖注入、启动流程
-├── docs/                       # 补充文档
-└── tests/                      # pytest 测试
+├── src/server/
+│   ├── app.py                    # FastAPI 入口
+│   ├── capabilities/             # 业务能力插件
+│   │   ├── market/               # 市场数据
+│   │   ├── technical/            # 技术分析
+│   │   ├── fundamental/          # 基本面
+│   │   ├── money_flow/           # 资金流
+│   │   ├── news/                 # 新闻
+│   │   ├── filings/              # 公告
+│   │   └── code_export/          # 数据导出
+│   ├── providers/                # 数据源插件
+│   ├── runtime/                  # 运行时核心
+│   ├── domain/                   # 领域服务
+│   ├── transports/               # 协议适配 (HTTP/MCP)
+│   ├── infrastructure/           # 基础设施 (Redis/Postgres)
+│   └── utils/                    # 工具函数
+├── tests/                        # pytest 测试
+├── docker-compose.yml
+└── pyproject.toml
 ```
 
 ### License
@@ -399,7 +409,7 @@ It is designed to provide reliable market data and analysis tools, not investmen
 ### One-command start
 
 ```bash
-git clone https://github.com/yourusername/stock-mcp.git
+git clone https://github.com/amuMeta/stock-mcp.git
 cd stock-mcp
 cp .env.example .env
 docker compose up -d --build
@@ -583,13 +593,25 @@ curl -X POST http://127.0.0.1:9898/mcp \
 
 ```text
 stock-mcp/
-├── src/server/api/
-├── src/server/mcp/
-├── src/server/domain/
-├── src/server/infrastructure/
-├── src/server/core/
-├── docs/
-└── tests/
+├── src/server/
+│   ├── app.py                    # FastAPI entrypoint
+│   ├── capabilities/             # Business capability plugins
+│   │   ├── market/               # Market data
+│   │   ├── technical/            # Technical analysis
+│   │   ├── fundamental/          # Fundamentals
+│   │   ├── money_flow/           # Money flow
+│   │   ├── news/                 # News
+│   │   ├── filings/              # Filings
+│   │   └── code_export/          # Code export
+│   ├── providers/                # Data source plugins
+│   ├── runtime/                  # Runtime core
+│   ├── domain/                   # Domain services
+│   ├── transports/               # Protocol adapters (HTTP/MCP)
+│   ├── infrastructure/           # Infrastructure (Redis/Postgres)
+│   └── utils/                    # Utilities
+├── tests/                        # pytest tests
+├── docker-compose.yml
+└── pyproject.toml
 ```
 
 ### License
